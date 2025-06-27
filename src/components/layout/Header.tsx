@@ -56,7 +56,7 @@ const Header = () => {
               <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-full">
                 <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
                 <p className="text-sm font-medium text-green-700">Real-time</p>
-                <Switch defaultChecked size="sm" />
+                <Switch defaultChecked />
               </div>
             </div>
             
