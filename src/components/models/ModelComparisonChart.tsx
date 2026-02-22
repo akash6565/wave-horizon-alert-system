@@ -32,20 +32,17 @@ const ModelComparisonChart: React.FC<ModelComparisonChartProps> = ({
     type: model.type,
   }));
 
-  const getColor = (type: string) => {
-    switch (type) {
-      case "CNN+LSTM":
-        return "#3b82f6";
-      case "CNN":
-        return "#8b5cf6";
-      case "LSTM":
-        return "#10b981";
-      case "Statistical":
-        return "#f59e0b";
-      default:
-        return "#6b7280";
-    }
+const getColor = (type: string) => {
+  const colorMap: Record<string, string> = {
+    "CNN+LSTM": "#3b82f6", // blue
+    "CNN": "#8b5cf6",      // purple
+    "LSTM": "#10b981",     // green
+    "Statistical": "#f59e0b", // amber
   };
+
+  return colorMap[type] ?? "#6b7280"; // default gray
+};
+
 
   return (
     <Card className={className}>
