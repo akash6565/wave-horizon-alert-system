@@ -88,13 +88,13 @@ const AlertConfigCard: React.FC<AlertConfigCardProps> = ({ config, className }) 
           <div>
             <h4 className="text-sm font-medium mb-2">Monitored Regions</h4>
             <div className="flex flex-wrap gap-2">
-              {config.regions.map((region, index) => (
+              {config.regions.map((region) => (
                 <div
-                  key={index}
+                  key={region.id}
                   className="bg-muted p-2 rounded-md text-sm flex items-center gap-1"
                 >
                   <Map className="h-3 w-3" />
-                  <span>{region.name || `Region ${index + 1}`}</span>
+                  <span>{region.name}</span>
                 </div>
               ))}
             </div>
