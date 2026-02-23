@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WaveData } from "@/types";
@@ -24,7 +23,7 @@ const MapView: React.FC<MapViewProps> = ({ data, className }) => {
     if (!mapContainer.current || !apiKey || showKeyInput) return;
 
     mapboxgl.accessToken = apiKey;
-    
+
     if (map.current) return;
 
     map.current = new mapboxgl.Map({
@@ -33,7 +32,7 @@ const MapView: React.FC<MapViewProps> = ({ data, className }) => {
       center: [0, 20],
       zoom: 1.8,
     });
-    
+
     map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
     return () => {
@@ -44,72 +43,89 @@ const MapView: React.FC<MapViewProps> = ({ data, className }) => {
   useEffect(() => {
     if (!map.current || !apiKey || showKeyInput || !data.length) return;
 
-    // Wait for map to be loaded
-    map.current.on("load", () => {
+    const handleLoad = () => {
       if (!map.current) return;
+      clearMarkers();
+      addMarkers(data);
+    };
 
-      // Remove existing markers if any
-      const existingMarkers = document.querySelectorAll(".wave-marker");
-      existingMarkers.forEach(marker => marker.remove());
+    map.current.on("load", handleLoad);
 
-      // Add markers for each data point
-      data.forEach((item) => {
-        if (!map.current) return;
-        
-        // Create marker element
-        const el = document.createElement("div");
-        el.className = "wave-marker";
-        
-        // Style based on alert level
-        const size = item.alert ? 
-          (item.alert.level === "high" ? 24 : 
-           item.alert.level === "medium" ? 20 : 16) : 
-          12;
-        
-        const alertClass = item.alert ? 
-          getAlertColorClass(item.alert.level) : 
-          "bg-blue-500";
-        
-        el.style.width = `${size}px`;
-        el.style.height = `${size}px`;
-        el.style.borderRadius = "50%";
-        el.style.cursor = "pointer";
-        el.style.border = "2px solid white";
-        el.className = `${alertClass} wave-marker`;
-        
-        // Add animation for alerts
-        if (item.alert && item.alert.level === "high") {
-          el.style.animation = "pulse 1.5s infinite";
-        }
-        
-        // Add popup
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div style="font-family: system-ui, sans-serif; padding: 8px;">
-            <h3 style="font-weight: bold; margin-bottom: 8px;">${item.location.name || "Ocean Location"}</h3>
-            <p><strong>Source:</strong> ${item.source}</p>
-            <p><strong>Wave Height:</strong> ${item.measurements.waveHeight.toFixed(1)}m</p>
-            <p><strong>Wind Speed:</strong> ${item.measurements.windSpeed.toFixed(1)} m/s</p>
-            ${item.alert ? `<p style="color: ${
-              item.alert.level === "high" ? "#ef4444" : 
-              item.alert.level === "medium" ? "#f59e0b" : "#10b981"
-            }; font-weight: bold; margin-top: 8px;">${item.alert.message}</p>` : ""}
-          </div>
-        `);
-        
-        // Add marker to map
-        new mapboxgl.Marker(el)
-          .setLngLat([item.location.lng, item.location.lat])
-          .setPopup(popup)
-          .addTo(map.current);
-      });
-    });
-    
-    // If map is already loaded, trigger the load event manually
     if (map.current.loaded()) {
-      map.current.fire("load");
+      handleLoad();
     }
-    
+
+    return () => {
+      map.current?.off("load", handleLoad);
+    };
   }, [data, apiKey, showKeyInput]);
+
+  // --- Helper functions ---
+  function clearMarkers() {
+    document.querySelectorAll(".wave-marker").forEach(marker => marker.remove());
+  }
+
+  function getMarkerSize(level?: string): number {
+    if (!level) return 12;
+    if (level === "high") return 24;
+    if (level === "medium") return 20;
+    return 16;
+  }
+
+  function getAlertColor(level?: string): string {
+    if (level === "high") return "#ef4444";
+    if (level === "medium") return "#f59e0b";
+    return "#10b981";
+  }
+
+  function addMarkers(data: WaveData[]) {
+    data.forEach((item) => {
+      if (!map.current) return;
+      const el = createMarkerElement(item);
+      const popup = createPopup(item);
+
+      new mapboxgl.Marker(el)
+        .setLngLat([item.location.lng, item.location.lat])
+        .setPopup(popup)
+        .addTo(map.current!);
+    });
+  }
+
+  function createMarkerElement(item: WaveData): HTMLDivElement {
+    const el = document.createElement("div");
+    const size = getMarkerSize(item.alert?.level);
+
+    const alertClass = item.alert
+      ? getAlertColorClass(item.alert.level)
+      : "bg-blue-500";
+
+    el.style.width = `${size}px`;
+    el.style.height = `${size}px`;
+    el.style.borderRadius = "50%";
+    el.style.cursor = "pointer";
+    el.style.border = "2px solid white";
+    el.className = `${alertClass} wave-marker`;
+
+    if (item.alert?.level === "high") {
+      el.style.animation = "pulse 1.5s infinite";
+    }
+
+    return el;
+  }
+
+  function createPopup(item: WaveData): mapboxgl.Popup {
+    const alertColor = getAlertColor(item.alert?.level);
+
+    return new mapboxgl.Popup({ offset: 25 }).setHTML(`
+      <div style="font-family: system-ui, sans-serif; padding: 8px;">
+        <h3 style="font-weight: bold; margin-bottom: 8px;">${item.location.name || "Ocean Location"}</h3>
+        <p><strong>Source:</strong> ${item.source}</p>
+        <p><strong>Wave Height:</strong> ${item.measurements.waveHeight.toFixed(1)}m</p>
+        <p><strong>Wind Speed:</strong> ${item.measurements.windSpeed.toFixed(1)} m/s</p>
+        ${item.alert ? `<p style="color: ${alertColor}; font-weight: bold; margin-top: 8px;">${item.alert.message}</p>` : ""}
+      </div>
+    `);
+  }
 
   const handleSubmitApiKey = () => {
     if (apiKey) {
