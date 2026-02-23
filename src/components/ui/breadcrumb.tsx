@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { ChevronRight, MoreHorizontal } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -60,17 +60,20 @@ BreadcrumbLink.displayName = "BreadcrumbLink"
 const BreadcrumbPage = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <a
     ref={ref}
     aria-disabled="true"
     aria-current="page"
     className={cn("font-normal text-foreground", className)}
     {...props}
-  />
+  >
+    {children || "Current Page"}
+  </a>
 ));
 
 BreadcrumbPage.displayName = "BreadcrumbPage";
+
 
 
 const BreadcrumbSeparator = ({
