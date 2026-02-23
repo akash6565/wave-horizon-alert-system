@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+// Define these outside the parent component
+const IconLeft: React.FC = () => <ChevronLeft className="h-4 w-4" />;
+const IconRight: React.FC = () => <ChevronRight className="h-4 w-4" />;
 
 function Calendar({
   className,
@@ -52,8 +55,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        IconLeft,
+        IconRight,
       }}
       {...props}
     />
