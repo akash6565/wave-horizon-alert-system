@@ -7,13 +7,13 @@ const Table = React.forwardRef<
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
   <div className="relative w-full overflow-auto">
-    /* sonar-disable-next-line html-table-header */
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
+  {/* sonar-disable-next-line html-table-header */}
+  <table
+    ref={ref}
+    className={cn("w-full caption-bottom text-sm", className)}
+    {...props}
+  />
+</div>
 ))
 Table.displayName = "Table"
 
