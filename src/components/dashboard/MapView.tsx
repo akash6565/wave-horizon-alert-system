@@ -12,7 +12,23 @@ interface MapViewProps {
   data: WaveData[];
   className?: string;
 }
-
+// Move these outside the component 
+function clearMarkers() { 
+  document.querySelectorAll(".wave-marker").forEach(marker => marker.remove()); 
+} 
+function getMarkerSize(level?: string): number {
+  if (!level) return 12;
+  if (level === "high") return 24;
+  if (level === "medium") return 20;
+  return 16;
+}
+function getAlertColor(level?: string): string { 
+  if (level === "high")
+    return "#ef4444";
+  if (level === "medium")
+    return "#f59e0b";
+  return "#10b981";
+}
 const MapView: React.FC<MapViewProps> = ({ data, className }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -61,22 +77,6 @@ const MapView: React.FC<MapViewProps> = ({ data, className }) => {
   }, [data, apiKey, showKeyInput]);
 
   // --- Helper functions ---
-  function clearMarkers() {
-    document.querySelectorAll(".wave-marker").forEach(marker => marker.remove());
-  }
-
-  function getMarkerSize(level?: string): number {
-    if (!level) return 12;
-    if (level === "high") return 24;
-    if (level === "medium") return 20;
-    return 16;
-  }
-
-  function getAlertColor(level?: string): string {
-    if (level === "high") return "#ef4444";
-    if (level === "medium") return "#f59e0b";
-    return "#10b981";
-  }
 
   function addMarkers(data: WaveData[]) {
     data.forEach((item) => {
