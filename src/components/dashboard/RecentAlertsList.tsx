@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WaveData } from "@/types";
@@ -32,44 +31,49 @@ const RecentAlertsList: React.FC<RecentAlertsListProps> = ({ alerts, className }
       </CardHeader>
       <CardContent className="px-0">
         <div className="space-y-2">
-          {alerts.map((alert) => (
-            <div key={alert.id} className="flex items-center px-6 py-2 hover:bg-muted/50">
-              <div className="mr-4">
-                <div
-                  className={`${getAlertColorClass(
-                    alert.alert?.level
-                  )} h-10 w-10 rounded-full flex items-center justify-center text-white`}
-                >
-                  {alert.measurements.waveHeight > 
-                    (alert.measurements.waveHeight > 6 ? 6 : 3) ? (
-                    <ArrowUp className="h-5 w-5" />
-                  ) : (
-                    <ArrowDown className="h-5 w-5" />
-                  )}
-                </div>
-              </div>
+          {alerts.map((alert) => {
+            // Extracted ternary into independent statement
+            const threshold = alert.measurements.waveHeight > 6 ? 6 : 3;
+            const isWaveHeightAboveThreshold = alert.measurements.waveHeight > threshold;
 
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <p className="font-medium truncate">{alert.alert?.message}</p>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                    {format(new Date(alert.timestamp), "HH:mm")}
-                  </span>
+            return (
+              <div key={alert.id} className="flex items-center px-6 py-2 hover:bg-muted/50">
+                <div className="mr-4">
+                  <div
+                    className={`${getAlertColorClass(
+                      alert.alert?.level
+                    )} h-10 w-10 rounded-full flex items-center justify-center text-white`}
+                  >
+                    {isWaveHeightAboveThreshold ? (
+                      <ArrowUp className="h-5 w-5" />
+                    ) : (
+                      <ArrowDown className="h-5 w-5" />
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-muted-foreground truncate">
-                    {alert.location.name} · {alert.source} · 
-                    Wave Height: {alert.measurements.waveHeight.toFixed(1)}m
-                  </p>
-                  <span className="text-xs font-medium whitespace-nowrap ml-2">
-                    {alert.alert?.level === "high" && "Critical"}
-                    {alert.alert?.level === "medium" && "Warning"}
-                    {alert.alert?.level === "low" && "Notice"}
-                  </span>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <p className="font-medium truncate">{alert.alert?.message}</p>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                      {format(new Date(alert.timestamp), "HH:mm")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-muted-foreground truncate">
+                      {alert.location.name} · {alert.source} · 
+                      Wave Height: {alert.measurements.waveHeight.toFixed(1)}m
+                    </p>
+                    <span className="text-xs font-medium whitespace-nowrap ml-2">
+                      {alert.alert?.level === "high" && "Critical"}
+                      {alert.alert?.level === "medium" && "Warning"}
+                      {alert.alert?.level === "low" && "Notice"}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
